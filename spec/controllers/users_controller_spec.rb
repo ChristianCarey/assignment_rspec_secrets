@@ -43,11 +43,35 @@ describe UsersController do
     end
 
     context "valid input" do
-      it "updates the user" do
+
+      before do 
         process :update, params: { id: user.id, user: attributes_for(:user, name: updated_name) }
+      end
+
+      it "updates the user" do
         user.reload
         expect(user.name).to eq(updated_name)
       end
+
+      it "redirects to the user's page" do 
+        expect(response).to redirect_to(user_path(user))
+      end
+    end
+
+    context "invalid input" do 
+
+      before do 
+        process :update, params: { id: user.id, user: attributes_for(:user, name: "a" * 21) }
+      end
+
+      it "doesn't update the user" do
+        user.reload
+        expect(user.name).not_to eq(updated_name)
+      end
+
+      it "doesn't redirect" do 
+        expect(response).to have_http_status(:ok)
+      end      
     end
   end
 end
